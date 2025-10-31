@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>🌿 생태와 환경 퀴즈 게임</title>
+  <style>
+    body {
+      font-family: "Noto Sans KR", sans-serif;
+      background: linear-gradient(to bottom right, #d2f8d2, #a0e7e5);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 30px;
+      color: #2b7a0b;
+    }
+
+    #quiz-box {
+      background: #ffffffcc;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+      margin-top: 20px;
+    }
+
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      color: #2b2b2b;
+    }
+
+    .option {
+      background: #e0f7e0;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 6px 0;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      font-size: 1em;
+      transition: 0.2s;
+    }
+
+    .option:hover {
+      background: #bdf4bd;
+    }
+
+    #next-btn {
+      background: #2b7a0b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      margin-top: 15px;
+      cursor: pointer;
+      font-size: 1em;
+      display: none;
+    }
+
+    #result {
+      font-size: 1.3em;
+      text-align: center;
+      color: #2b7a0b;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌱 생태와 환경 퀴즈 🌍</h1>
+
+  <div id="quiz-box">
+    <div id="question-container">
+      <div id="question" class="question"></div>
+      <div id="options"></div>
+    </div>
+    <button id="next-btn">다음 ▶</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const quizData = [
+      {
+        question: "1. 지구 온난화의 주요 원인은 무엇일까요?",
+        options: ["이산화탄소 증가", "산소 감소", "오존층 회복", "바다 염분 증가"],
+        answer: "이산화탄소 증가"
+      },
+      {
+        question: "2. 플라스틱 쓰레기를 줄이는 가장 좋은 방법은?",
+        options: ["소각하기", "재활용하기", "재사용 줄이기", "매립하기"],
+        answer: "재활용하기"
+      },
+      {
+        question: "3. 열대우림이 파괴되면 가장 큰 문제는?",
+        options: ["지진 증가", "생물 다양성 감소", "기온 하락", "산소 부족 감소"],
+        answer: "생물 다양성 감소"
+      },
+      {
+        question: "4. ‘탄소 중립’이란 무엇을 의미할까요?",
+        options: ["탄소 배출을 완전히 없애는 것", "배출한 만큼 흡수해 총합을 0으로 만드는 것", "탄소를 재활용하는 것", "탄소를 저장하는 것"],
+        answer: "배출한 만큼 흡수해 총합을 0으로 만드는 것"
+      },
+      {
+        question: "5. 다음 중 친환경 에너지가 아닌 것은?",
+        options: ["태양광", "풍력", "석탄", "수력"],
+        answer: "석탄"
+      },
+      {
+        question: "6. 바다에 버려지는 미세플라스틱의 주요 원인은?",
+        options: ["빨대", "플라스틱 포장재", "세탁 시 합성섬유", "비닐봉지"],
+        answer: "세탁 시 합성섬유"
+      },
+      {
+        question: "7. 오존층이 파괴되면 어떤 일이 발생할까요?",
+        options: ["기온 상승", "자외선 증가", "산성비 감소", "산소 농도 증가"],
+        answer: "자외선 증가"
+      },
+      {
+        question: "8. ‘지속 가능한 발전’의 핵심 개념은?",
+        options: ["현재 세대만을 위한 발전", "미래 세대의 필요를 고려한 발전", "경제 성장만 중시", "환경 보호만 중시"],
+        answer: "미래 세대의 필요를 고려한 발전"
+      },
+      {
+        question: "9. 다음 중 생태계 서비스가 아닌 것은?",
+        options: ["식량 공급", "공기 정화", "재활용 쓰레기", "기후 조절"],
+        answer: "재활용 쓰레기"
+      },
+      {
+        question: "10. ‘멸종 위기종’을 보호해야 하는 이유는?",
+        options: ["동물이 귀여워서", "생태계 균형을 유지하기 위해", "관광 수입 증가를 위해", "사람의 생존과 관계없다"],
+        answer: "생태계 균형을 유지하기 위해"
+      }
+    ];
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const nextBtn = document.getElementById("next-btn");
+    const resultEl = document.getElementById("result");
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    function showQuestion() {
+      const q = quizData[currentQuestion];
+      questionEl.textContent = q.question;
+      optionsEl.innerHTML = "";
+      q.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.classList.add("option");
+        btn.onclick = () => checkAnswer(option);
+        optionsEl.appendChild(btn);
+      });
+      nextBtn.style.display = "none";
+    }
+
+    function checkAnswer(selected) {
+      const correct = quizData[currentQuestion].answer;
+      const buttons = document.querySelectorAll(".option");
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === correct) {
+          btn.style.background = "#8ee68e";
+        } else if (btn.textContent === selected) {
+          btn.style.background = "#f88b8b";
+        }
+      });
+      if (selected === correct) score++;
+      nextBtn.style.display = "block";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      currentQuestion++;
+      if (currentQuestion < quizData.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    });
+
+    function showResult() {
+      questionEl.textContent = "";
+      optionsEl.innerHTML = "";
+      nextBtn.style.display = "none";
+      resultEl.textContent = `🎉 퀴즈 완료! 당신의 점수는 ${score} / ${quizData.length} 점입니다!`;
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>
